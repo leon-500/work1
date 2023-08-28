@@ -1,0 +1,6 @@
+---
+  - hosts: test
+    become: true
+    gather_facts: false
+    roles:
+      - sf_b_6_9_dnsmasq_role

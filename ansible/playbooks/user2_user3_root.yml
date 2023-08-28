@@ -1,0 +1,54 @@
+# Create user2, user3 in group superusers
+---
+- hosts: test
+  become: true
+  gather_facts: false
+# vars_files:
+#   - vars/default.yml
+
+  tasks:
+    - name: Install Prerequisites
+      apt: name=aptitude update_cache=yes state=latest force_apt_get=yes
+
+# Sudo Group Setup
+    - name: Create group superusers
+      group:
+        name: superusers
+        state: present
+
+    - name: Allow superuser group to have passwordless sudo
+      lineinfile:
+        path: /etc/sudoers
+        state: present
+        regexp: '^%superusers'
+        line: '%superusers ALL=(ALL) NOPASSWD: ALL'
+        validate: '/usr/sbin/visudo -cf %s'
+
+# User + Key Setup
+    - name: Create user2, user3 with sudo privileges
+      user:
+        name: "{{ item }}"
+        state: present
+        groups: superusers
+        append: true
+        create_home: true
+        shell: /bin/bash
+      loop:
+        - user2
+        - user3
+
+    - name: Set authorized key for remote user
+      authorized_key:
+        user: "{{ item }}"
+        state: present
+        key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') }}"
+      loop:
+        - user2
+        - user3
+
+    - name: Disable password authentication for root
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        state: present
+        regexp: '^#?PermitRootLogin'
+        line: 'PermitRootLogin prohibit-password'
