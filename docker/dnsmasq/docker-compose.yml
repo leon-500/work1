@@ -1,0 +1,13 @@
+version: '2'
+services:
+  dns:
+    restart: always
+    image: strm/dnsmasq
+    volumes:
+      - /data/dnsmasq/dnsmasq.conf:/etc/dnsmasq.conf
+      - /data/dnsmasq/dnsmasq-queries.log:/var/log/dnsmasq-queries.log
+    ports:
+      - "53:53/udp"
+      - "53:53/tcp"
+    cap_add:
+      - NET_ADMIN

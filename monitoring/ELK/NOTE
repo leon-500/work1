@@ -1,0 +1,4 @@
+[APP]: NGINX ------------transfer logs---------------> [LOGSERVER]: Rsyslog -> ELK
+
+
+https://www.elastic.co/blog/how-to-centralize-logs-with-rsyslog-logstash-and-elasticsearch-on-ubuntu-14-04

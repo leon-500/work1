@@ -1,0 +1,85 @@
+version: '3.2'
+services:
+    prometheus:
+        image: prom/prometheus:latest
+        volumes:
+            - ./prometheus:/etc/prometheus/
+        command:
+            - --config.file=/etc/prometheus/prometheus.yml
+        ports:
+            - 9090:9090
+        restart: always
+        depends_on:
+            - alertmanager
+
+    node-exporter:
+        image: prom/node-exporter
+        volumes:
+            - /proc:/host/proc:ro
+            - /sys:/host/sys:ro
+            - /:/rootfs:ro
+        hostname: monitoring
+        command:
+            - --path.procfs=/host/proc
+            - --path.sysfs=/host/sys
+            - --collector.filesystem.ignored-mount-points
+            - ^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)
+        ports:
+            - 9100:9100
+        restart: always
+        
+    blackbox-exporter:
+        image: prom/blackbox-exporter
+        ports:
+            - 9115:9115
+        restart: always
+        volumes:
+            - ./blackbox:/tmp/config
+        command: --config.file=/tmp/config/blackbox.yml
+    
+    grafana:
+        image: grafana/grafana
+        depends_on:
+            - prometheus
+        ports:
+            - 3000:3000
+        volumes:
+            - ./grafana:/var/lib/grafana
+            - ./grafana/provisioning/:/etc/grafana/provisioning/
+        restart: always
+        
+    alertmanager-bot:
+        command:
+        - --alertmanager.url=http://158.160.25.124:9093
+        - --log.level=info
+        - --store=bolt
+        - --bolt.path=/data/bot.db
+        environment:
+          TELEGRAM_ADMIN: "950318349"
+          TELEGRAM_TOKEN: 6234279041:AAFjqGxy3C8WgVkjwmZCR_HVKhKqp-vvVxA
+        image: metalmatze/alertmanager-bot:0.4.3
+        ports:
+        - 8080:8080
+        restart: always
+        volumes:
+        - ./data:/data
+
+    alertmanager:
+      image: prom/alertmanager:v0.21.0
+      ports:
+        - 9093:9093
+      volumes:
+        - ./alertmanager/:/etc/alertmanager/
+      restart: always
+      command:
+        - --config.file=/etc/alertmanager/config.yml
+        - --storage.path=/etc/alertmanager/data
+#node_boot_time_seconds #uptime
+#100 - ((node_filesystem_avail_bytes{mountpoint="/",fstype!="rootfs"} * 100) / node_filesystem_size_bytes{mountpoint="/",fstype!="rootfs"}) #HDD use in %
+#100 - ((node_memory_MemAvailable_bytes * 100) / node_memory_MemTotal_bytes) #RAM use in %
+#node_memory_MemAvailable_bytes
+#node_memory_MemTotal_bytes
+#sum (node_cpu_seconds_total{mode="idle"})
+#probe_http_status_code
+#(probe_ssl_earliest_cert_expiry - time()) / 84600 #how many days cert is valid
+#awesome-prometheus-alerts
