@@ -107,7 +107,7 @@ resource "null_resource" "kubernetes-worker-join" {
 # test
 #
 resource "null_resource" "kubernetes-test" {
-  depends_on = [null_resource.kubernetes-worker-join, null_resource.k8s-gitlab-runner]
+  depends_on = [null_resource.kubernetes-worker-join]
   connection {
     user        = var.ssh_credentials.user
     private_key = file(var.ssh_credentials.private_key)
