@@ -1,0 +1,23 @@
+# php-fpm
+---
+- name: Install Prerequisites
+  apt: name={{ item }} update_cache=yes state=latest force_apt_get=yes
+  loop: [ 'aptitude' ]
+
+- name: Install nginx, php-fpm
+  apt: name=php-fpm update_cache=yes state=latest
+    
+# php Configuration
+- name: Sets php conf file
+  template:
+    src: "www.conf.j2"
+    dest: "'/etc/php/8.1/fpm/pool.d/www.conf"
+    
+# UFW Configuration
+- name: "Allow tcp 9000"
+  ufw:
+    rule: allow
+    port: 9000
+    proto: tcp
+
+

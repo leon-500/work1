@@ -1,0 +1,4 @@
+---
+http_host: "testsite"
+http_conf: "testsite.conf"
+http_port: "80"

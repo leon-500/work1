@@ -1,0 +1,33 @@
+#creat user + key
+---
+- name: Install Prerequisites
+  apt: name=aptitude update_cache=yes state=latest force_apt_get=yes
+      
+#Group Setup
+- name: Group Setup
+  group:
+    name: user1
+    state: present
+
+# User + Key Setup
+- name: Create a new regular user
+  user:
+    name: user1
+    state: present
+    groups: user1
+    append: true
+    create_home: true
+    shell: /bin/bash
+
+- name: Set authorized key for remote user
+  authorized_key:
+    user: user1
+    state: present
+    key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') }}"
+
+- name: Disable password authentication for root
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    state: present
+    regexp: '^#?PermitRootLogin'
+    line: 'PermitRootLogin prohibit-password'

@@ -1,0 +1,7 @@
+---
+- hosts: php
+  become: true
+  gather_facts: false
+  roles:
+    - users
+    - php
