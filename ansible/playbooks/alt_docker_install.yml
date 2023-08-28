@@ -1,0 +1,47 @@
+# Alt Linux Docker Install
+---
+- hosts: alt
+  become: true
+  gather_facts: false
+    
+  tasks:
+    - name: Install Docker
+      package:
+        name: docker-ce
+        update_cache: true
+        
+    - name: Start Docker service
+      service:
+        name: docker
+        state: started
+        enabled: yes
+    
+    - name: Add user leon to docker group
+      user:
+        name: leon
+        groups: docker
+        append: yes
+
+    - name: Install Docker compose
+      package:
+        name: docker-compose
+        update_cache: true
+
+    - name: Transfer Docker-Compose file
+      copy: 
+        src: "{{ item.src }}" 
+        dest: "{{ item.dest }}"
+      loop:
+        - src: /data/docker-compose.yml
+          dest: /data
+        - src: /data/.env
+          dest: /data
+        #- src: dynamic
+        # dest: "{{ var_path }}"
+        
+    - name: deploy Docker Compose stack
+      docker_compose:
+        project_src: /data
+        files:
+        - docker-compose.yml  
+    
