@@ -1,0 +1,7 @@
+[user]
+	name = Student1
+	email = student1@maill.ru
+[alias]
+	history = log --graph
+[core]
+	editor = vim
