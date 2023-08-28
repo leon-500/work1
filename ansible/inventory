@@ -1,0 +1,14 @@
+[database]
+vm1
+
+[web]
+vm1
+
+[app]
+vm2
+vm3
+
+[all]
+vm1
+vm2
+vm3

@@ -1,0 +1,38 @@
+# Install user ansible
+---
+# Sudo Group Setup
+- name: Intstall group ansible_group
+  group:
+    name: ansible_group
+    state: present
+
+- name: Allow ansible_group group to have passwordless sudo
+  lineinfile:
+    path: /etc/sudoers
+    state: present
+    regexp: '^%ansible_group'
+    line: '%ansible_group ALL=(ALL) NOPASSWD: ALL'
+    validate: '/usr/sbin/visudo -cf %s'
+
+# User + Key Setup
+- name: Install user ansible
+  user:
+    name: ansible
+    state: present
+    groups: ansible_group
+    append: true
+    create_home: true
+    shell: /bin/bash
+      
+- name: Set authorized key for remote user
+  authorized_key:
+    user: ansible
+    state: present
+    key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') }}"
+    
+- name: Disable password authentication for root
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    state: present
+    regexp: '^#?PermitRootLogin'
+    line: 'PermitRootLogin prohibit-password'
