@@ -318,9 +318,14 @@ subjects:
   name: ingress-nginx-admission
   namespace: ingress-nginx
 ---
+### ConfigMap ingress-nginx-controller ###
 apiVersion: v1
 data:
   allow-snippet-annotations: "true"
+  use-forwarded-headers: "true"
+  use-gzip: "false"
+  log-format-escape-json: "true"
+  log-format-upstream: '{"time": "$time_iso8601", "remote_addr": "$proxy_protocol_addr", "x-forward-for": "$proxy_add_x_forwarded_for", "request_id": "$req_id", "remote_user": "$remote_user", "bytes_sent": $bytes_sent, "request_time": $request_time, "status":$status, "vhost": "$host", "request_proto": "$server_protocol", "path": "$uri", "request_query": "$args", "request_length": $request_length, "duration": $request_time,"method": "$request_method", "http_referrer": "$http_referer", "http_user_agent": "$http_user_agent", "namespace": "$namespace", "ingress_name": "$ingress_name", "service_name": "$service_name", "service_port": "$service_port" }'
 kind: ConfigMap
 metadata:
   labels:
@@ -332,6 +337,7 @@ metadata:
   name: ingress-nginx-controller
   namespace: ingress-nginx
 ---
+### Service ingress-nginx-controller (nodePort) ###
 apiVersion: v1
 kind: Service
 metadata:
@@ -351,11 +357,13 @@ spec:
   - appProtocol: http
     name: http
     port: 80
+    nodePort: 30080
     protocol: TCP
     targetPort: http
   - appProtocol: https
     name: https
     port: 443
+    nodePort: 30443
     protocol: TCP
     targetPort: https
   selector:
@@ -363,6 +371,9 @@ spec:
     app.kubernetes.io/instance: ingress-nginx
     app.kubernetes.io/name: ingress-nginx
   type: NodePort
+  # Открываем порты только на тех машинах, где находятся
+  # поды контроллера
+  externalTrafficPolicy: Local
 ---
 apiVersion: v1
 kind: Service
@@ -387,6 +398,7 @@ spec:
     app.kubernetes.io/name: ingress-nginx
   type: ClusterIP
 ---
+### Deployment ingress-nginx-controller ###
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -399,6 +411,8 @@ metadata:
   name: ingress-nginx-controller
   namespace: ingress-nginx
 spec:
+  # ставим две реплики
+  replicas: 2
   minReadySeconds: 0
   revisionHistoryLimit: 10
   selector:
@@ -420,7 +434,13 @@ spec:
         - /nginx-ingress-controller
         - --election-id=ingress-nginx-leader
         - --controller-class=k8s.io/ingress-nginx
+        # Задаём класс, который можно указывать при 
+        # определении ingress
+        # - --ingress-class=my-test-ingress
         - --ingress-class=nginx
+        # Определяет namespace ingress которого будет обслуживать
+        # контроллер. Если пустой, то отслеживаются все namespaces
+        # - --watch-namespace=my-project-namespace
         - --configmap=$(POD_NAMESPACE)/ingress-nginx-controller
         - --validating-webhook=:8443
         - --validating-webhook-certificate=/usr/local/certificates/cert
@@ -492,6 +512,9 @@ spec:
           readOnly: true
       dnsPolicy: ClusterFirst
       nodeSelector:
+        # обязательно пометить ноды, на которых может быть
+        # установлен контроллер
+        ingress-nginx-node: enable
         kubernetes.io/os: linux
       serviceAccountName: ingress-nginx
       terminationGracePeriodSeconds: 300
