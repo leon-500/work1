@@ -6,6 +6,7 @@ Ingress Controllers https://kubernetes.io/docs/concepts/services-networking/ingr
 
 
 В deployment-е в args
+
 spec:
       containers:
       - args:
@@ -16,4 +17,5 @@ spec:
         # - --watch-namespace=my-project-namespace
 
 В service ingress-nginx-controller открываем порты только на тех машинах, где находятся  поды контроллера
+
 externalTrafficPolicy: Local
