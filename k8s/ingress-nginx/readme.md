@@ -6,6 +6,9 @@ Ingress Controllers https://kubernetes.io/docs/concepts/services-networking/ingr
 
 
 
+
+
+
 В deployment-е
 
 spec:
