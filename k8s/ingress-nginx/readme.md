@@ -23,6 +23,18 @@ spec:
         # обязательно пометить ноды, на которых может быть установлен контроллер
         ingress-nginx-node: enable
 
+либо можно использовать affinity
+
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: ingress-nginx-node
+                operator: In
+                values:
+                - enable
+
 kubectl label nodes mynode.name ingress-nginx-node=enable
 
 ####################################################################################################
