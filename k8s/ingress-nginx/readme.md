@@ -17,10 +17,13 @@ spec:
         # Определяет namespace который будет обслуживать контроллер. Если пустой, то отслеживаются все namespaces        
         # - --watch-namespace=my-project-namespace
 
+###########
 
       nodeSelector:
         # обязательно пометить ноды, на которых может быть установлен контроллер
         ingress-nginx-node: enable
+
+kubectl label nodes mynode.name ingress-nginx-node=enable
 
 ####################################################################################################
 
@@ -31,4 +34,11 @@ externalTrafficPolicy: Local
 ####################################################################################################
 
 ConfigMap json format
+
 https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/#log-format-escape-json
+
+####################################################################################################
+
+ingress-controller размещаем в любом namespace. Обслуживает весь кластер. Разруливается для ingress по ingress-class, либо для namespace по watch-namespace
+
+ingress обращается к service. Если они в одном namespace, то по короткому имени. Если в разных, то указывать полное имя сервиса с доменом
