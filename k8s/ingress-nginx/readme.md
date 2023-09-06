@@ -13,7 +13,9 @@ spec:
       - args:      
         - /nginx-ingress-controller        
         # Задаём класс, который будет обслуживать контроллер, который можно указывать в манифесте ingress в annotations, например annotations:  kubernetes.io/ingress.class: "my-test-ingress"
+        
         - --ingress-class=nginx        
+        
         # Определяет namespace который будет обслуживать контроллер. Если пустой, то отслеживаются все namespaces        
         # - --watch-namespace=my-project-namespace
 
