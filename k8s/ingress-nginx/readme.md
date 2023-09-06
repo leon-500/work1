@@ -4,10 +4,7 @@ Ingress https://kubernetes.io/docs/concepts/services-networking/ingress/
 
 Ingress Controllers https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/
 
-
-
-
-
+###################################################################################################
 
 В deployment-е
 
@@ -25,7 +22,13 @@ spec:
         # обязательно пометить ноды, на которых может быть установлен контроллер
         ingress-nginx-node: enable
 
+####################################################################################################
 
 В service ingress-nginx-controller открываем порты только на тех машинах, где находятся  поды контроллера
 
 externalTrafficPolicy: Local
+
+####################################################################################################
+
+ConfigMap json format
+https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/#log-format-escape-json
