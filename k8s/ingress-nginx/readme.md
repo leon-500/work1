@@ -3,3 +3,17 @@ NGINX Ingress Controller https://kubernetes.github.io/ingress-nginx/
 Ingress https://kubernetes.io/docs/concepts/services-networking/ingress/
 
 Ingress Controllers https://kubernetes.io/docs/concepts/services-networking/ingress-controllers/
+
+
+В deployment-е в args
+spec:
+      containers:
+      - args:
+        - /nginx-ingress-controller
+        # Задаём класс, который можно указывать в манифесте ingress, например ingress-class=my-test-ingress
+        - --ingress-class=nginx
+        # Определяет namespace который будет обслуживать контроллер. Если пустой, то отслеживаются все namespaces
+        # - --watch-namespace=my-project-namespace
+
+В service ingress-nginx-controller открываем порты только на тех машинах, где находятся  поды контроллера
+externalTrafficPolicy: Local
