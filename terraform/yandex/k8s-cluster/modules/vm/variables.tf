@@ -7,7 +7,7 @@ variable "masters" {
 variable "workers" {
   description = "Count of worker nodes"
   type        = number
-  default     = 1
+  default     = 2
 }
 
 variable "srv" {
