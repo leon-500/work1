@@ -1,0 +1,9 @@
+scrape_configs:
+  - job_name: srv
+    basic_auth:
+      username: user
+      password: 123
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['ip_address1:9182', 'ip_address2:9182', 'ip_address3:9182']
+
