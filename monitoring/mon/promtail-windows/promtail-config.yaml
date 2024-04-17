@@ -1,0 +1,43 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+client:
+  url: http://ipaddress:3100/loki/api/v1/push
+  
+scrape_configs:
+- job_name: sysmon
+  windows_events:
+    use_incoming_timestamp: true
+    bookmark_path: "./bookmark.xml"
+    eventlog_name: "Microsoft-Windows-Sysmon/Operational"
+    labels:
+      job: sysmon
+- job_name: windows-application
+  windows_events:
+    use_incoming_timestamp: true
+    bookmark_path: "./bookmark-application.xml"
+    eventlog_name: "Application"
+    xpath_query: "*[System[(Level=1 or Level=2 or Level=3)]]" # Critical, Error, Warning
+    labels:
+      job: windows-application
+    exclude_event_data: true
+- job_name: windows-security
+  windows_events:
+    use_incoming_timestamp: true
+    bookmark_path: "./bookmark-security.xml"
+    eventlog_name: "Security"
+    xpath_query: "*[System[(Level=1 or Level=2 or Level=3)]]" # Critical, Error, Warning
+    labels:
+      job: windows-security
+    exclude_event_data: true
+- job_name: windows-system
+  windows_events:
+    use_incoming_timestamp: true
+    bookmark_path: "./bookmark-system.xml"
+    eventlog_name: "System"
+    xpath_query: "*[System[(Level=1 or Level=2 or Level=3)]]" # Critical, Error, Warning
+    labels:
+      job: windows-system
+    exclude_event_data: true
+     
